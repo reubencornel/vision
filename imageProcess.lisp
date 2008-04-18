@@ -43,12 +43,10 @@
 (defun can-move-p (direction x y image stack boundary)
   (let* ((intended-x (funcall (get-function (get-x-component direction)) x (get-intensity (get-x-component direction))))
 	 (intended-y (funcall (get-function (get-y-component direction)) y (get-intensity (get-y-component direction)))))
-;	 (key-presence (gethash 
     (if (and (not (< intended-x 0))
 	     (not (< intended-y 0))
 	     (not (member (list intended-x intended-y) stack :test #'equal))
 	     (not (member (list intended-x intended-y) boundary :test #'equal)))
-;	     (not (
 	(let ((intensity (imago:gray-intensity (imago:image-pixel image intended-x intended-y))))
 	  (if (> intensity threshold-intensity)
 	      t
