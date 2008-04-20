@@ -1,0 +1,10 @@
+This project aims to help the machine identify various objects on the screen
+like windows, buttons, text boxes, etc.
+
+The big idea is that, eventually this would act like an perceptual layer to a cognitive modelling environment.
+
+It is primarily written in common lisp. 
+
+Libraries Required:
+1) Imago
+2) zlib
