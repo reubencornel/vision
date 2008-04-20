@@ -102,11 +102,21 @@
 	(if (> intensity threshold-intensity)
 	   (print (dfs image x y)))))))
 
-;(read-image "/Users/reuben/img.png")
+(read-image "/Users/reuben/img.png")
 
-;(let ((image-obj (dfs *edge* 56 5)))
-;  (print (sort-pixel-list (pixel-list image-obj) #'>))
-;  (print (intensity-list image-obj))
-;  (print (calc-upper-left-coord image-obj))
-;  (print (calc-lower-right-coord image-obj)))
+(let* ((image-obj (dfs *edge* 56 5))
+       (intensity-list (intensity-list image-obj))
+       (intensity-hash (make-hash-table :test #'equal)))
+       
+  ;(print (sort-pixel-list (pixel-list image-obj) #'>))
+  (mapcar #'(lambda(x)
+	      (if (gethash x intensity-hash)
+		  (setf (gethash x intensity-hash) (+ 1 (gethash x intensity-hash)))
+		  (setf (gethash x intensity-hash) 1)))
+	  intensity-list)
+  (maphash #'(lambda(k v)
+	       (format t "~a ~a~%" k (/ v (* 1.0 (length intensity-list)))))
+	   intensity-hash)
+  (print (calc-upper-left-coord image-obj))
+  (print (calc-lower-right-coord image-obj)))
 

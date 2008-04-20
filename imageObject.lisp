@@ -3,18 +3,17 @@
 (defclass image-object()
   ((image-pixels :accessor image-pixels
 		 :initform (make-hash-table :test #'equal))
+   (parent-layer :accessor parent-layer)
    (upper-left-coord :accessor upper-left-coord
 		     :initform '(0 0))
    (lower-right-coord :accessor lower-right-coord
 		      :initform '(0 0))))
-
 
 (defun add-pixel-to-image(pixel-x pixel-y intensity image-obj)
   (setf (gethash (list pixel-x pixel-y) (image-pixels image-obj)) intensity))
 
 (defun add-pixel-list-to-image(xy intensity image-obj)
   (setf (gethash xy (image-pixels image-obj)) intensity))
-
 
 (defun pixel-in-image-p(pixel-x pixel-y image-obj)
   (multiple-value-bind (value predicate) (gethash (list pixel-x pixel-y) (image-pixels image-obj))
@@ -37,7 +36,6 @@
 	     (image-pixels image-obj))
     intensity-list))
     
-
 (defun sort-pixel-list(pixel-list predicate key)
   (sort pixel-list predicate :key key) )
 
@@ -52,4 +50,3 @@
 	 (x (first (first (sort pixel-list #'> :key #'first))))
 	 (y (second (first (sort pixel-list #'> :key #'second)))))
     (setf (upper-left-coord image-obj) (list x y))))
-

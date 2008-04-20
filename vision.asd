@@ -7,6 +7,8 @@
     :name "vision"
     :depends-on (:imago :lisp-unit)
     :components ((:file "utilities")
-		 (:file "imageProcess" :depends-on ("utilities"))
+		 (:file "imageProcess" :depends-on ("utilities" "imageObject" "imageLayer"))
 		 (:file "imageObject" :depends-on ("utilities"))
-		 (:file "imageLayer" :depends-on ("utilities"))))
+		 (:file "imageLayer" :depends-on ("utilities" "imageObject"))
+		 (:file "imageStack" :depends-on ("utilities" "imageLayer"))
+		 (:file "unittests" :depends-on ("utilities" "imageProcess" "imageObject" "imageLayer" "imageStack"))))
