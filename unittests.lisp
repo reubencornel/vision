@@ -10,7 +10,7 @@
 
 (lisp-unit:define-test add-layer-to-stack
   (let ((stack-obj (make-instance 'image-stack)))
-    (lisp-unit:assert-equal 'LAYER (type-of (add-layer stack-obj)))
+    (lisp-unit:assert-equal 'IMAGE-LAYER (type-of (add-layer stack-obj)))
     (lisp-unit:assert-true (= (length (layers stack-obj)) 1))))
 
 (lisp-unit:run-tests)
