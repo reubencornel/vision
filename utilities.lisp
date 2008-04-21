@@ -5,6 +5,9 @@
 	do (progn
 	     ,@body)))
 
+(defmacro not-null (&body body)
+  `(not (null ,@body)))
+
 (defmacro loop-for(variable start end predicate step &body body)
   (let ((start-lim (gensym))
 	(end-lim (gensym)))

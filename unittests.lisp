@@ -35,17 +35,23 @@
 	(layer (make-instance 'image-layer)))
     (add-layer layer *image-stack*)
     (read-image "/Users/reuben/img.png")
+    (add-object (dfs *edge* 2 21) layer)
+    (add-object (dfs *edge* 821 17) layer)
+    (add-object (dfs *edge* 917 3) layer)
     (lisp-unit:assert-false (should-perform-dfs-p *edge* 0 0)) ; low threshold level
     (lisp-unit:assert-true (should-perform-dfs-p *edge* 58 10)) ; pixel has not been scanned and has is not on layer
     (add-object (dfs *edge* 56 5) layer)
-    (let ((obj (dfs *edge* 288 119)))
-      (print "====")
-      (print (first (sort (pixel-list obj) #'< :key #'second)))
-      (Add-object obj layer))
+    (lisp-unit:assert-false (should-perform-dfs-p *edge* 917 3))
     (lisp-unit:assert-false (should-perform-dfs-p *edge* 55 6))
     (lisp-unit:assert-false (should-perform-dfs-p *edge* 55 7))
+    (lisp-unit:assert-false (should-perform-dfs-p *edge* 822 17))
+    (lisp-unit:assert-false (should-perform-dfs-p *edge* 3 21))))
+
+(lisp-unit:run-tests image-scan-check-predicate)
+
+
 ;    (lisp-unit:assert-false (print (should-perform-dfs-p *edge* 2 21)))
-    (lisp-unit:assert-false (should-perform-dfs-p *edge* 289 119)))) ; pixel is with in the bounding box of an object
+;    (lisp-unit:assert-false (should-perform-dfs-p *edge* 289 119)))) ; pixel is with in the bounding box of an object
 
 ;; 285 119
 ;285  122
@@ -68,4 +74,3 @@
     (lisp-unit:assert-equal .5 (proper-ratio x y))
     (lisp-unit:assert-equal .5 (proper-ratio y x))))
 
-(lisp-unit:run-tests image-scan-check-predicate)

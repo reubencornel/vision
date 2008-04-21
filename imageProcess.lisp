@@ -3,10 +3,15 @@
 (defparameter *original-image* '()) ;(imago:read-png "/Users/reuben/img.png"))
 (defparameter *gray-image* '()) ; (imago:convert-to-grayscale *original-image*))
 (defparameter *edge* '()) ;(imago:edge-detect *gray-image*))
-(defparameter threshold-intensity 67)
+(defparameter threshold-intensity 120) ;67) ;67)
 (defparameter *image-stack* (make-instance 'image-stack)) ;variable to store the image stack
-(defparameter *mergable-threshold* 10) ; variable that decides if two given image objects can be merged into one object
+(defparameter *mergable-threshold* 6) ; variable that decides if two given image objects can be merged into one object
 (defparameter *mergable-ratio* .4)
+
+(defparameter *default-start-x* 0)
+(defparameter *default-start-y* 0)
+(defparameter *default-end-x* 1280)
+(defparameter *default-end-y*  720) ;800)
 
 
 (defparameter *north* (list (list #'+ 0) (list #'- 1)))
@@ -111,21 +116,35 @@
 	(objects layer)))
 
 
-(defun should-perform-dfs-p(image x y )
-    (and (> (imago:gray-intensity (imago:image-pixel image x y)) threshold-intensity)
-	 (not (coordinate-in-any-object-p x y (first (layers *image-stack*))))))
+(defun should-perform-dfs-p(image x y &optional parent-widget)
+;  (print (length (layers *image-stack*)))
+  (if (null parent-widget)
+      (and (> (imago:gray-intensity (imago:image-pixel image x y)) threshold-intensity)
+	   (not  (coordinate-in-any-object-p x y (first (layers *image-stack*)))))
+      (and (> (imago:gray-intensity (imago:image-pixel image x y)) threshold-intensity)
+	   (not (coordinate-in-any-object-p x y (first (layers *image-stack*))))
+	   (not (member (list x y) (pixel-list parent-widget)  :test #'equal)))))=
 
-(defun scan-region(image start-x start-y end-x end-y)
+
+(defun scan-region(image start-x start-y end-x end-y &optional parent-widget)
   (let ((image-layer (first (layers *image-stack*))))
     (loop-for y start-y end-y #'< #'1+
 	 (loop-for x start-x end-x #'< #'1+ 
-	      (if (should-perform-dfs-p image x y)
-		  (add-object (dfs image x y) image-layer))))))
+	      (if (should-perform-dfs-p image x y parent-widget)
+		  (let ((obj (dfs image x y)))
+		    (setf (parent-widget obj) parent-widget)	
+		    (if (and (mergable-with-parent-p obj)
+			     (not-null parent-widget))
+			(merge-objects obj parent-widget)
+;			(if (< (area (upper-left-coord obj) (lower-right-coord obj)) 0)
+			(if (not (equal (upper-left-coord obj) (lower-right-coord obj)))
+			    (add-object obj image-layer)))))))))
 
-(defun all-objects-scanned-p()
+(defun all-objects-scanned-p(layer)
   (every #'(lambda(x)
 	     (scan-status x))
-	 (objects (first *image-stack*))))
+	 (objects layer)))
+
 
 (defun square (x)
   (* x x))
@@ -140,31 +159,91 @@
 	     (/ number-1 number-2))))
 
 
+(defun mergable-with-parent-p(img)
+  (< (area (upper-left-coord img) (lower-right-coord img)) *mergable-threshold*))
 
 ;; ;;; TO DO Not complete yet!!
-(defun mergable-p (img-1 img-2)
-  (let ((up-1  (upper-left-coord img-1))
-	(up-2 (upper-left-coord img-2)))
-    (and (> *mergable-ratio*   (print (proper-ratio (length (pixel-list img-1)) (length (pixel-list img-2)))))
-	 (> (print (cartesian-distance (first up-1) (second up-1) (first up-2) (second up-2))) *mergable-threshold*))))
+;(defun mergable-p (img-1 img-2)
+ ; (let ((up-1  (upper-left-coord img-1))
+;	(up-2 (upper-left-coord img-2)))
+ ;   (
+;    (and (> *mergable-ratio*   (print (proper-ratio (length (pixel-list img-1)) (length (pixel-list img-2)))))
+;	 (> (print (cartesian-distance (first up-1) (second up-1) (first up-2) (second up-2))) *mergable-threshold*))))
 
-
-(read-image "/Users/reuben/img.png")
-(let ((*image-stack* (make-instance 'image-stack))
-      (img (dfs *edge* 338 4)))
+(defun initialize-first-layer(image)
+  "Initialize the first layer to all the elements in the "
+  (setf *image-stack* (make-instance 'image-stack))
   (add-layer (make-instance 'image-layer) *image-stack*)
+  (scan-region image *default-start-x* *default-start-y* *default-end-x* *default-end-y*))
+
+(defun list-of-objects-to-be-scanned(layer)
+  (remove-if #'(lambda(x)
+		 (scan-status x))
+	     (objects layer)))
+
+(defun scan-all-objects(list-of-objects image)
+  (mapcar #'(lambda(x)
+	      (let ((up (upper-left-coord x))
+		    (low (lower-right-coord x)))
+		(setf (scan-status x) t)
+		(scan-region image (first up) (second up) (first low) (second low) x)))
+	  list-of-objects))
+
+(defun complete-scan(image)
+  (if (> (length (objects (first (layers *image-stack*)))) 5) ; If there are about 5 objects on the top of the stack then we are done
+      ;; cause the rest would be repetitions.
+      (let ((list-of-objects (list-of-objects-to-be-scanned (first (layers *image-stack*))))
+	    (new-layer (make-instance 'image-layer)))
+	(add-layer new-layer *image-stack*)
+	(scan-all-objects list-of-objects image)
+	(complete-scan image))))
+
+(defun scan (image)
+  (initialize-first-layer image)
+  (complete-scan image))
+
+
+;(time (progn
+;	(read-image "/Users/reuben/img1.png")
+;	(scan *edge*)))
+;(print (layers *image-stack*))
+;(print (pixel-list  (first (objects (first (last (layers *image-stack*)))))))
+;(write-image "/Users/reuben/smallTest1.png")
+
+;; (let ()
+;;   (scan *edge*)
+;;   (initialize-first-layer *edge*)
   
-  (scan-region *edge* 0 0 1280 800)
-  (print (sort (mapcar #'(lambda(x)
-			   (origin-pixels x))
-		       (objects (first (layers *image-stack*))))
-	       #'< 
-	       :key #'first)))
- 
+;;   (print (length (layers *image-stack*)))
+;;   (print (all-objects-scanned-p (first (layers *image-stack*))))
+;;   (print (length (objects (first (layers *image-stack*)))))
+;;   (length (complete-scan *edge*))
+
+
+;;   (print (mapcar #'(lambda(x y)
+;; 		     (area x y))
+;; 		 (print (mapcar #'(lambda(x)
+;; 				    (upper-left-coord x))
+;; 				(objects (first (layers *image-stack*)))))
+;; 		 (print (mapcar #'(lambda(x)
+;; 				    (lower-right-coord x))
+;; 				(objects (first (layers *image-stack*)))))))
+  
+;;   (print (sort (mapcar #'(lambda(x)
+;; 			   (origin-pixels x))
+;; 		       (objects (first (layers *image-stack*))))
+;; 	       #'< 
+;; 	       :key #'first)))
+
 ;; (let* ((image-obj (dfs *edge* 563 308))
 ;;        (image-obj-1 (dfs *edge* 696 308)))
 ;;   (scan-region *edge* 1 1 105 21))
 
+
+;; (defun area(xy1 xy2)
+;;   (let ((length (abs (- (first xy1) (first xy2))))
+;; 	(width (abs (- (second xy1) (second xy2)))))
+;;     (* length width)))
 
   
 ;  (print (intensity-list image-obj))
