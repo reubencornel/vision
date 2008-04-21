@@ -4,8 +4,7 @@
   ((layers :accessor layers 
 	   :initform '())))
 
-(defun add-layer(stack-obj)
-  (let ((new-layer (make-instance 'image-layer)))
-    (push new-layer (layers stack-obj))
-    new-layer))
 
+(defun add-layer (layer stack-obj)
+  (setf (layers stack-obj) (push layer (layers stack-obj)))
+  layer)

@@ -3,9 +3,15 @@
 (defclass image-object()
   ((image-pixels :accessor image-pixels
 		 :initform (make-hash-table :test #'equal))
+   (scan-status :accessor scan-status
+		:initform nil)
+   (parent-widget :accessor parent-widget
+		  :initform nil)
    (parent-layer :accessor parent-layer)
    (upper-left-coord :accessor upper-left-coord
 		     :initform '(0 0))
+   (origin-pixels :accessor origin-pixels
+		  :initform '(0 0))
    (lower-right-coord :accessor lower-right-coord
 		      :initform '(0 0))))
 
@@ -40,13 +46,12 @@
   (sort pixel-list predicate :key key) )
 
 (defun calc-upper-left-coord(image-obj)
-  (let* ((pixel-list (pixel-list image-obj))
-	 (x (first (first (sort pixel-list #'< :key #'first))))
-	 (y (second (first (sort pixel-list #'< :key #'second)))))
+  (let* ;((pixel-list (pixel-list image-obj))
+	 ((x (first (first (sort (pixel-list image-obj) #'< :key #'first))))
+	 (y (second (first (sort (pixel-list image-obj) #'< :key #'second)))))
     (setf (upper-left-coord image-obj) (list x y))))
 
 (defun calc-lower-right-coord(image-obj)
-  (let* ((pixel-list (pixel-list image-obj))
-	 (x (first (first (sort pixel-list #'> :key #'first))))
-	 (y (second (first (sort pixel-list #'> :key #'second)))))
-    (setf (upper-left-coord image-obj) (list x y))))
+  (let* ((x (first (first (sort (pixel-list image-obj) #'> :key #'first))))
+	 (y (second (first (sort (pixel-list image-obj) #'> :key #'second)))))
+    (setf (lower-right-coord image-obj) (list x y))))

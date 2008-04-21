@@ -4,6 +4,9 @@
 (defparameter *gray-image* '()) ; (imago:convert-to-grayscale *original-image*))
 (defparameter *edge* '()) ;(imago:edge-detect *gray-image*))
 (defparameter threshold-intensity 67)
+(defparameter *image-stack* (make-instance 'image-stack)) ;variable to store the image stack
+(defparameter *mergable-threshold* 10) ; variable that decides if two given image objects can be merged into one object
+(defparameter *mergable-ratio* .4)
 
 
 (defparameter *north* (list (list #'+ 0) (list #'- 1)))
@@ -91,32 +94,95 @@
 	       (setf stack (perform-dfs-bookkeeping *south-west* current-x current-y image image-obj stack)))
 	      (t 
 	       (pop stack)))))
+    (calc-upper-left-coord image-obj)
+    (setf (origin-pixels image-obj) (list x y))
+    ;;     (print (calc-upper-left-coord image-obj))
+    (calc-lower-right-coord image-obj)
     image-obj))
 
-(defun scan(image)
-  (with-open-file (op "/Users/reuben/op"
-		      :direction :output
-		      :if-exists :supersede)    
-    (imago:do-image-pixels (image color x y)
-      (let ((intensity (imago:gray-intensity (imago:image-pixel image x y))))
-	(if (> intensity threshold-intensity)
-	   (print (dfs image x y)))))))
+(defun coordinate-in-any-object-p(x y layer)
+  (some #'(lambda(obj)
+	    (let ((up (upper-left-coord obj))
+		  (low (lower-right-coord obj)))
+	      (and (and (>= x (first up)) 
+			(<= x (first low)))
+		   (and (>= y (second up))
+			(<= y (second low))))))
+	(objects layer)))
+
+
+(defun should-perform-dfs-p(image x y )
+    (and (> (imago:gray-intensity (imago:image-pixel image x y)) threshold-intensity)
+	 (not (coordinate-in-any-object-p x y (first (layers *image-stack*))))))
+
+(defun scan-region(image start-x start-y end-x end-y)
+  (let ((image-layer (first (layers *image-stack*))))
+    (loop-for y start-y end-y #'< #'1+
+	 (loop-for x start-x end-x #'< #'1+ 
+	      (if (should-perform-dfs-p image x y)
+		  (add-object (dfs image x y) image-layer))))))
+
+(defun all-objects-scanned-p()
+  (every #'(lambda(x)
+	     (scan-status x))
+	 (objects (first *image-stack*))))
+
+(defun square (x)
+  (* x x))
+
+(defun cartesian-distance (x1 y1 x2 y2)
+  (round (sqrt (+ (square (- x2 x1))
+		  (square (- y2 y1))))))
+
+(defun proper-ratio(number-1 number-2)
+  (* 1.0 (if (> number-1 number-2)
+	     (/ number-2 number-1)
+	     (/ number-1 number-2))))
+
+
+
+;; ;;; TO DO Not complete yet!!
+(defun mergable-p (img-1 img-2)
+  (let ((up-1  (upper-left-coord img-1))
+	(up-2 (upper-left-coord img-2)))
+    (and (> *mergable-ratio*   (print (proper-ratio (length (pixel-list img-1)) (length (pixel-list img-2)))))
+	 (> (print (cartesian-distance (first up-1) (second up-1) (first up-2) (second up-2))) *mergable-threshold*))))
+
 
 (read-image "/Users/reuben/img.png")
+(let ((*image-stack* (make-instance 'image-stack))
+      (img (dfs *edge* 338 4)))
+  (add-layer (make-instance 'image-layer) *image-stack*)
+  
+  (scan-region *edge* 0 0 1280 800)
+  (print (sort (mapcar #'(lambda(x)
+			   (origin-pixels x))
+		       (objects (first (layers *image-stack*))))
+	       #'< 
+	       :key #'first)))
+ 
+;; (let* ((image-obj (dfs *edge* 563 308))
+;;        (image-obj-1 (dfs *edge* 696 308)))
+;;   (scan-region *edge* 1 1 105 21))
 
-(let* ((image-obj (dfs *edge* 56 5))
-       (intensity-list (intensity-list image-obj))
-       (intensity-hash (make-hash-table :test #'equal)))
-       
-  ;(print (sort-pixel-list (pixel-list image-obj) #'>))
-  (mapcar #'(lambda(x)
-	      (if (gethash x intensity-hash)
-		  (setf (gethash x intensity-hash) (+ 1 (gethash x intensity-hash)))
-		  (setf (gethash x intensity-hash) 1)))
-	  intensity-list)
-  (maphash #'(lambda(k v)
-	       (format t "~a ~a~%" k (/ v (* 1.0 (length intensity-list)))))
-	   intensity-hash)
-  (print (calc-upper-left-coord image-obj))
-  (print (calc-lower-right-coord image-obj)))
 
+  
+;  (print (intensity-list image-obj))
+;  (print (intensity-list image-obj-1)))
+;       (intensity-list (intensity-list image-obj))
+;       (intensity-hash (make-hash-table :test #'equal)))
+;  (lower-right-coord (dfs *edge* 93 8)))
+  
+  ;(scan-region *edge* 20 1 34 19))
+;;   ;(print (sort-pixel-list (pixel-list image-obj) #'>))
+;;   (mapcar #'(lambda(x)
+;; 	      (if (gethash x intensity-hash)
+;; 		  (setf (gethash x intensity-hash) (+ 1 (gethash x intensity-hash)))
+;; 		  (setf (gethash x intensity-hash) 1)))
+;; 	  intensity-list)
+;;   (maphash #'(lambda(k v)
+;; 	       (format t "~a ~a~%" k (/ v (* 1.0 (length intensity-list)))))
+;; 	   intensity-hash)
+;  (imago:gray-intensity (imago:image-pixel *edge* 58 10))
+;  (print (calc-upper-left-coord image-obj))
+ ; (print (calc-lower-right-coord image-obj)))
