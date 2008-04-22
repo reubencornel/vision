@@ -11,7 +11,7 @@
 (defparameter *default-start-x* 0)
 (defparameter *default-start-y* 0)
 (defparameter *default-end-x* 1280)
-(defparameter *default-end-y*  720) ;800)
+(defparameter *default-end-y*  800)
 
 
 (defparameter *north* (list (list #'+ 0) (list #'- 1)))
@@ -158,6 +158,10 @@
 	     (/ number-2 number-1)
 	     (/ number-1 number-2))))
 
+(defun area(xy1 xy2)
+  (let ((length (abs (- (first xy1) (first xy2))))
+	(width (abs (- (second xy1) (second xy2)))))
+    (* length width)))
 
 (defun mergable-with-parent-p(img)
   (< (area (upper-left-coord img) (lower-right-coord img)) *mergable-threshold*))
@@ -203,65 +207,3 @@
   (complete-scan image))
 
 
-;(time (progn
-;	(read-image "/Users/reuben/img1.png")
-;	(scan *edge*)))
-;(print (layers *image-stack*))
-;(print (pixel-list  (first (objects (first (last (layers *image-stack*)))))))
-;(write-image "/Users/reuben/smallTest1.png")
-
-;; (let ()
-;;   (scan *edge*)
-;;   (initialize-first-layer *edge*)
-  
-;;   (print (length (layers *image-stack*)))
-;;   (print (all-objects-scanned-p (first (layers *image-stack*))))
-;;   (print (length (objects (first (layers *image-stack*)))))
-;;   (length (complete-scan *edge*))
-
-
-;;   (print (mapcar #'(lambda(x y)
-;; 		     (area x y))
-;; 		 (print (mapcar #'(lambda(x)
-;; 				    (upper-left-coord x))
-;; 				(objects (first (layers *image-stack*)))))
-;; 		 (print (mapcar #'(lambda(x)
-;; 				    (lower-right-coord x))
-;; 				(objects (first (layers *image-stack*)))))))
-  
-;;   (print (sort (mapcar #'(lambda(x)
-;; 			   (origin-pixels x))
-;; 		       (objects (first (layers *image-stack*))))
-;; 	       #'< 
-;; 	       :key #'first)))
-
-;; (let* ((image-obj (dfs *edge* 563 308))
-;;        (image-obj-1 (dfs *edge* 696 308)))
-;;   (scan-region *edge* 1 1 105 21))
-
-
-;; (defun area(xy1 xy2)
-;;   (let ((length (abs (- (first xy1) (first xy2))))
-;; 	(width (abs (- (second xy1) (second xy2)))))
-;;     (* length width)))
-
-  
-;  (print (intensity-list image-obj))
-;  (print (intensity-list image-obj-1)))
-;       (intensity-list (intensity-list image-obj))
-;       (intensity-hash (make-hash-table :test #'equal)))
-;  (lower-right-coord (dfs *edge* 93 8)))
-  
-  ;(scan-region *edge* 20 1 34 19))
-;;   ;(print (sort-pixel-list (pixel-list image-obj) #'>))
-;;   (mapcar #'(lambda(x)
-;; 	      (if (gethash x intensity-hash)
-;; 		  (setf (gethash x intensity-hash) (+ 1 (gethash x intensity-hash)))
-;; 		  (setf (gethash x intensity-hash) 1)))
-;; 	  intensity-list)
-;;   (maphash #'(lambda(k v)
-;; 	       (format t "~a ~a~%" k (/ v (* 1.0 (length intensity-list)))))
-;; 	   intensity-hash)
-;  (imago:gray-intensity (imago:image-pixel *edge* 58 10))
-;  (print (calc-upper-left-coord image-obj))
- ; (print (calc-lower-right-coord image-obj)))
