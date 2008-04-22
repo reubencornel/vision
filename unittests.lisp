@@ -47,9 +47,6 @@
     (lisp-unit:assert-false (should-perform-dfs-p *edge* 822 17))
     (lisp-unit:assert-false (should-perform-dfs-p *edge* 3 21))))
 
-(lisp-unit:run-tests image-scan-check-predicate)
-
-
 ;    (lisp-unit:assert-false (print (should-perform-dfs-p *edge* 2 21)))
 ;    (lisp-unit:assert-false (should-perform-dfs-p *edge* 289 119)))) ; pixel is with in the bounding box of an object
 
@@ -74,3 +71,4 @@
     (lisp-unit:assert-equal .5 (proper-ratio x y))
     (lisp-unit:assert-equal .5 (proper-ratio y x))))
 
+(lisp-unit:run-tests)
