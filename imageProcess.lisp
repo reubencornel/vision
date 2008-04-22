@@ -32,8 +32,8 @@
   (setf *gray-image* (imago:convert-to-grayscale *original-image*))
   (setf *edge* (imago:edge-detect *gray-image*)))
   
-(defun write-image(filename)
-  (imago:write-png *edge* filename))
+(defun write-image(filename image)
+  (imago:write-png image filename))
 
 (defun get-x-component(direction)
   (first direction))
