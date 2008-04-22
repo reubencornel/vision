@@ -66,3 +66,46 @@
 	     (image-pixels to-be-merged))
     (calc-lower-right-coord new-obj)
     (calc-upper-left-coord new-obj)))
+
+(defmethod calc-image-object-width((object image-object))
+  (abs (- (first (upper-left-coord object)) (first (lower-right-coord object)))))
+
+(defmethod calc-image-object-height((object image-object))
+  (abs (- (Second (upper-left-coord object)) (second (lower-right-coord object)))))
+
+
+(defmethod create-image(object image)
+  nil)
+
+
+(defmethod create-image((object image-object) (image imago:grayscale-image))
+  (let* ((h (+ 1 (calc-image-object-height object)))
+	 (w (+ 1 (calc-image-object-width object)))
+	 (x (first (upper-left-coord object)))
+	 (y (second (upper-left-coord object)))
+	 (new-image-object (make-instance 'imago:grayscale-image :height h :width w)))
+    (imago:copy new-image-object image :dest-x 0 :dest-y 0 :src-x x :src-y y :width w :height h)
+    new-image-object))
+
+
+(defun new-name()
+  (format nil "~a" (gensym)))
+
+(defun new-file-name()
+  (concatenate 'string "/Users/reuben/images/" (new-name) ".png"))
+
+(let* ((layer (first (last (layers *image-stack*)))))
+  (mapcar #'(lambda(x)
+	      (write-image (new-file-name) 
+			   (create-image (find-object-with-origin (first (origin-pixels x))
+								  (second (origin-pixels x))
+								  layer)
+					 *edge*)))
+					 
+	  (objects layer)))
+									 
+
+;(let* ((layer (first (last (layers *image-stack*)))) 
+ ;      (image-obj (find-object-with-origin 62 8 layer))
+  ;     (gray-image (create-image image-obj *edge*)))
+  ;(write-image "/Users/reuben/smallimg.png" gray-image))

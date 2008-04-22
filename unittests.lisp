@@ -1,6 +1,9 @@
 (in-package #:vision)
 ;(use-package 'lisp-unit)
 
+(read-image "/Users/reuben/img.png")
+(scan *edge*)
+
 (lisp-unit:define-test addObject 
   (let ((layer (make-instance 'image-layer))
 	(object (make-instance 'image-object)))
@@ -25,7 +28,6 @@
 	(layer (make-instance 'image-layer)))
     (add-layer layer *image-stack*)
     (lisp-unit:assert-false (coordinate-in-any-object-p 10 10 layer ))
-    (read-image "/Users/reuben/img.png")
     (add-object (dfs *edge* 56 5) layer)
     (lisp-unit:assert-false (coordinate-in-any-object-p  10 10 layer))
     (lisp-unit:assert-true (coordinate-in-any-object-p 58 10 layer))))
@@ -34,7 +36,6 @@
   (let ((*image-stack* (make-instance 'image-stack))
 	(layer (make-instance 'image-layer)))
     (add-layer layer *image-stack*)
-    (read-image "/Users/reuben/img.png")
     (add-object (dfs *edge* 2 21) layer)
     (add-object (dfs *edge* 821 17) layer)
     (add-object (dfs *edge* 917 3) layer)
@@ -53,22 +54,49 @@
 ;; 285 119
 ;285  122
 
-(lisp-unit:define-test mergable-p-test
-  (let ((image-obj (dfs *edge* 21 13))
-	(image-obj-1 (dfs *edge* 22 16))
-	(image-obj-2 (dfs *edge* 56 5))
-	(image-obj-3 (dfs *edge* 56 5))
-	(image-obj-4 (dfs *edge* 62  8)))
-;    (print (proper-ratio (length (pixel-list image-obj)) (length (pixel-list image-obj-1))))
-    (lisp-unit:assert-true (mergable-p image-obj image-obj-1))
-    (lisp-unit:assert-false (mergable-p image-obj-3 image-obj-4))
-    (print (proper-ratio (length (pixel-list image-obj-4)) (length (pixel-list image-obj-3))))
-    (lisp-unit:assert-false (mergable-p image-obj-1 image-obj-2))))
+;; (lisp-unit:define-test mergable-p-test
+;;   (let ((image-obj (dfs *edge* 21 13))
+;; 	(image-obj-1 (dfs *edge* 22 16))
+;; 	(image-obj-2 (dfs *edge* 56 5))
+;; 	(image-obj-3 (dfs *edge* 56 5))
+;; 	(image-obj-4 (dfs *edge* 62  8)))
+;; ;    (print (proper-ratio (length (pixel-list image-obj)) (length (pixel-list image-obj-1))))
+;;     (lisp-unit:assert-true (mergable-p image-obj image-obj-1))
+;;     (lisp-unit:assert-false (mergable-p image-obj-3 image-obj-4))
+;;     (print (proper-ratio (length (pixel-list image-obj-4)) (length (pixel-list image-obj-3))))
+;;     (lisp-unit:assert-false (mergable-p image-obj-1 image-obj-2))))
 
 (lisp-unit:define-test proper-ratio-test
   (let ((x 1)
 	(y 2))
     (lisp-unit:assert-equal .5 (proper-ratio x y))
     (lisp-unit:assert-equal .5 (proper-ratio y x))))
+
+(lisp-unit:define-test find-image-object-test
+  (scan *edge*)
+  (let ((layer (first (last (layers *image-stack*)))))
+    (lisp-unit:assert-true (equal '(56 5) (origin-pixels (find-object-with-origin 56 5 layer))))
+    (lisp-unit:assert-false (find-object-with-origin 0 0 layer))))
+
+(lisp-unit:define-test calc-width-test 
+  (let* ((layer (first (last (layers *image-stack*))))
+	 (object (find-object-with-origin 56 5 layer)))
+    (lisp-unit:assert-equal 5 (calc-image-object-width object))))
+    
+(lisp-unit:define-test calc-height-test
+  (let* ((layer (first (last (layers *image-stack*))))
+	 (object (find-object-with-origin 56 5 layer)))
+    (lisp-unit:assert-equal 10 (calc-image-object-height object))))
+
+(lisp-unit:define-test create-image-test
+  (let* ((layer (first (last (layers *image-stack*))))
+	 (object (find-object-with-origin 56 5 layer))
+	 (image-obj (create-image object *Edge*))
+	 (image-obj1 (create-image nil nil)))
+    
+    (lisp-unit:assert-equal 11 (imago:image-height image-obj))
+    (lisp-unit:assert-equal 6 (imago:image-width image-obj))
+    (lisp-unit:assert-equal nil image-obj1)))
+
 
 (lisp-unit:run-tests)
