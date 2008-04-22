@@ -206,4 +206,3 @@
   (initialize-first-layer image)
   (complete-scan image))
 
-
