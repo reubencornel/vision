@@ -94,18 +94,18 @@
 (defun new-file-name()
   (concatenate 'string "/Users/reuben/images/" (new-name) ".png"))
 
-(let* ((layer (first (last (layers *image-stack*)))))
-  (mapcar #'(lambda(x)
-	      (write-image (new-file-name) 
-			   (create-image (find-object-with-origin (first (origin-pixels x))
-								  (second (origin-pixels x))
-								  layer)
-					 *edge*)))
-					 
-	  (objects layer)))
-									 
-
-;(let* ((layer (first (last (layers *image-stack*)))) 
- ;      (image-obj (find-object-with-origin 62 8 layer))
-  ;     (gray-image (create-image image-obj *edge*)))
-  ;(write-image "/Users/reuben/smallimg.png" gray-image))
+;(let* ((layer (first (last (layers *image-stack*)))))
+;  (mapcar #'(lambda(x)
+;	      (write-image (new-file-name) 
+;			   (create-image (find-object-with-origin (first (origin-pixels x))
+;								  (second (origin-pixels x))
+;								  layer)
+;					 *edge*)))
+;					 
+;	  (objects layer)))
+;									 
+;
+;;(let* ((layer (first (last (layers *image-stack*)))) 
+; ;      (image-obj (find-object-with-origin 62 8 layer))
+;  ;     (gray-image (create-image image-obj *edge*)))
+;  ;(write-image "/Users/reuben/smallimg.png" gray-image))
