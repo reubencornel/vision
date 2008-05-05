@@ -1,8 +1,8 @@
 (in-package #:vision)
 ;(use-package 'lisp-unit)
 
-(read-image "/Users/reuben/img.png")
-(scan *edge*)
+;(read-image "/Users/reuben/img.png")
+;(scan *edge*)
 
 (lisp-unit:define-test addObject 
   (let ((layer (make-instance 'image-layer))
@@ -99,4 +99,4 @@
     (lisp-unit:assert-equal nil image-obj1)))
 
 
-(lisp-unit:run-tests)
+;(lisp-unit:run-tests)
