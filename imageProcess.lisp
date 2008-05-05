@@ -8,10 +8,10 @@
 (defparameter *mergable-threshold* 6) ; variable that decides if two given image objects can be merged into one object
 (defparameter *mergable-ratio* .4)
 
-(defparameter *default-start-x* 0)
-(defparameter *default-start-y* 0)
-(defparameter *default-end-x* 1280)
-(defparameter *default-end-y*  800)
+(defparameter *default-start-x* 284)
+(defparameter *default-start-y* 118)
+(defparameter *default-end-x* 955)
+(defparameter *default-end-y*  461)
 
 
 (defparameter *north* (list (list #'+ 0) (list #'- 1)))
@@ -141,12 +141,14 @@
 	      (if (should-perform-dfs-p image x y parent-widget)
 		  (let ((obj (dfs image x y)))
 		    (setf (parent-widget obj) parent-widget)	
+		    (if (not (null parent-widget))
+			(add-child-widget obj parent-widget))
 		    (if (and (mergable-with-parent-p obj)
 			     (not-null parent-widget))
 			(merge-objects obj parent-widget)
 ;			(if (< (area (upper-left-coord obj) (lower-right-coord obj)) 0)
 			(if (not (equal (upper-left-coord obj) (lower-right-coord obj)))
-			    (add-object obj image-layer)))))))))
+			      (add-object obj image-layer)))))))))
 
 (defun all-objects-scanned-p(layer)
   (every #'(lambda(x)
