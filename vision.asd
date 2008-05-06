@@ -5,7 +5,7 @@
 
 (defsystem vision
     :name "vision"
-    :depends-on (:imago :lisp-unit)
+    :depends-on (:imago :lisp-unit :decisiontree)
     :components ((:file "utilities")
 		 (:file "imageProcess" :depends-on ("utilities" "imageObject" "imageLayer" "imageStack"))
 		 (:file "imageObject" :depends-on ("utilities"))
