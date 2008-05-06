@@ -22,6 +22,9 @@
 (defparameter *south-east* (list (list #'+ 1) (list #'+ 1)))
 (defparameter *south-west* (list (list #'- 1) (list #'+ 1)))
 
+;(read-image "/Users/reuben/img.png")
+;(scan *edge*)
+
 (defun make-point (x y)
   (list x y))
 
@@ -234,4 +237,238 @@
 			      *edge*))))
 	  
 	  (objects layer)))
-;(write-layer-images "/Users/reuben/images" (first (layers *image-stack*)))
+
+(defun number-of-pixels(number image-obj key-function)
+  (let ((number-of-pixels 0))
+    (maphash #'(lambda(k v)
+;		 (declare (ignore v))
+		 (if (and (= number (funcall key-function k))
+			  (>= v threshold-intensity))
+		     (incf number-of-pixels)))
+	     (image-pixels image-obj))
+    number-of-pixels))
+
+(defun number-of-x-pixels(number image-obj)
+  (number-of-pixels number image-obj #'first))
+
+(defun number-of-y-pixels(number image-obj)
+  (number-of-pixels number image-obj #'second))
+
+(defun ratio-of-x-isto-y(image-obj)
+  (let* ((x-dist (abs (- (first (lower-right-coord image-obj) )
+		    (First (upper-left-coord image-obj)))))
+	(y-dist (abs (- (second (lower-right-coord image-obj))
+		   (second (upper-left-coord image-obj)))))
+	 (ratio (/ x-dist y-dist)))
+    (cond ((and (> ratio .75)
+		(<= ratio 1.5)) 1)
+	  ((> ratio 1.5) 2)
+	  (t 0))))
+
+(defun data(image-obj)
+  (list (list 'left-x (number-of-x-pixels (first (upper-left-coord image-obj)) image-obj))
+	(list 'upper-y (number-of-y-pixels (second (upper-left-coord image-obj)) image-obj))
+	(list 'right-x (number-of-x-pixels (first (lower-right-coord image-obj)) image-obj))
+	(list 'lower-y (number-of-y-pixels (second (lower-right-coord image-obj)) image-obj))
+	(list 'x-to-y (ratio-of-x-isto-y image-obj))
+	(list 'x-dist (abs (- (first (lower-right-coord image-obj) )
+			      (First (upper-left-coord image-obj)))))
+	(list 'y-dist (abs (- (second (lower-right-coord image-obj))
+			      (second (upper-left-coord image-obj)))))
+	(list 'feature (find-if #'(lambda(x)
+				    (not (null (identification x))))
+				(children-widgets image-obj)))))
+
+(defun generate-training-data (class-name data-list)
+  (append (list 'push)
+	  (list (append (list 'define-instance class-name) data-list))
+	  (list 'inst-list)))
+
+(defun generate-classification-parameters(data-list)
+  (append (list 'decisiontree:define-instance '?) data-list))
+
+(defparameter  inst-list '())
+(let ()
+  (PUSH
+   (decisiontree:DEFINE-INSTANCE MAGNIFYING-GLASS (LEFT-X 4) (UPPER-Y 4) (RIGHT-X 3)
+				 (LOWER-Y 1) (X-TO-Y 1) (X-DIST 11) (Y-DIST 12) (FEATURE NIL))
+   INST-LIST)
+  (PUSH
+   (decisiontree:DEFINE-INSTANCE TRIANGLE (LEFT-X 1) (UPPER-Y 5) (RIGHT-X 1) (LOWER-Y 1)
+				 (X-TO-Y 1) (X-DIST 4) (Y-DIST 3) (FEATURE NIL))
+   INST-LIST)
+  (PUSH
+  (decisiontree:DEFINE-INSTANCE TRIANGLE (LEFT-X 1) (UPPER-Y 1) (RIGHT-X 1) (LOWER-Y 5)
+   (X-TO-Y 1) (X-DIST 4) (Y-DIST 3) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE QUESTION-MARK (LEFT-X 2) (UPPER-Y 5) (RIGHT-X 2) (LOWER-Y 2)
+   (X-TO-Y 1) (X-DIST 5) (Y-DIST 6) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE BUTTON (LEFT-X 19) (UPPER-Y 51) (RIGHT-X 19) (LOWER-Y 49)
+   (X-TO-Y 2) (X-DIST 52) (Y-DIST 21) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE BUTTON (LEFT-X 19) (UPPER-Y 78) (RIGHT-X 19) (LOWER-Y 76)
+   (X-TO-Y 2) (X-DIST 79) (Y-DIST 21) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE SLIDE-BAR (LEFT-X 3) (UPPER-Y 13) (RIGHT-X 3) (LOWER-Y 1)
+   (X-TO-Y 2) (X-DIST 203) (Y-DIST 17) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE SEARCH-BAR (LEFT-X 9) (UPPER-Y 136) (RIGHT-X 9)
+   (LOWER-Y 134) (X-TO-Y 2) (X-DIST 149) (Y-DIST 22) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE DROP-DOWN (LEFT-X 17) (UPPER-Y 118) (RIGHT-X 17)
+   (LOWER-Y 118) (X-TO-Y 2) (X-DIST 121) (Y-DIST 20) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE CHECK-BOX (LEFT-X 13) (UPPER-Y 12) (RIGHT-X 13) (LOWER-Y 14)
+   (X-TO-Y 1) (X-DIST 13) (Y-DIST 13) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE CHECKED-CHECK-BOX (LEFT-X 12) (UPPER-Y 3) (RIGHT-X 1)
+   (LOWER-Y 12) (X-TO-Y 1) (X-DIST 14) (Y-DIST 15) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE CHECKED-CHECK-BOX (LEFT-X 12) (UPPER-Y 3) (RIGHT-X 1)
+   (LOWER-Y 12) (X-TO-Y 1) (X-DIST 14) (Y-DIST 15) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE RADIO-BUTTON (LEFT-X 8) (UPPER-Y 6) (RIGHT-X 8) (LOWER-Y 8)
+   (X-TO-Y 1) (X-DIST 13) (Y-DIST 14) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE RADIO-BUTTON (LEFT-X 8) (UPPER-Y 6) (RIGHT-X 8) (LOWER-Y 8)
+   (X-TO-Y 1) (X-DIST 13) (Y-DIST 14) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE BUTTON (LEFT-X 5) (UPPER-Y 6) (RIGHT-X 5) (LOWER-Y 6)
+   (X-TO-Y 1) (X-DIST 13) (Y-DIST 13) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE BUTTON (LEFT-X 6) (UPPER-Y 6) (RIGHT-X 6) (LOWER-Y 6)
+   (X-TO-Y 1) (X-DIST 13) (Y-DIST 13) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE BUTTON (LEFT-X 6) (UPPER-Y 6) (RIGHT-X 6) (LOWER-Y 6)
+   (X-TO-Y 1) (X-DIST 13) (Y-DIST 13) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE HELP-BUTTON (LEFT-X 8) (UPPER-Y 7) (RIGHT-X 8) (LOWER-Y 7)
+   (X-TO-Y 1) (X-DIST 18) (Y-DIST 19) (FEATURE NIL))
+  INST-LIST)
+(PUSH
+  (decisiontree:DEFINE-INSTANCE MAGNIFYING-GLASS (LEFT-X 4) (UPPER-Y 4) (RIGHT-X 3)
+   (LOWER-Y 1) (X-TO-Y 1) (X-DIST 11) (Y-DIST 12) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE TRIANGLE (LEFT-X 1) (UPPER-Y 5) (RIGHT-X 1) (LOWER-Y 1)
+   (X-TO-Y 1) (X-DIST 4) (Y-DIST 3) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE TRIANGLE (LEFT-X 1) (UPPER-Y 1) (RIGHT-X 1) (LOWER-Y 5)
+   (X-TO-Y 1) (X-DIST 4) (Y-DIST 3) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE QUESTION-MARK (LEFT-X 2) (UPPER-Y 5) (RIGHT-X 2) (LOWER-Y 2)
+   (X-TO-Y 1) (X-DIST 5) (Y-DIST 6) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE BUTTON (LEFT-X 19) (UPPER-Y 51) (RIGHT-X 19) (LOWER-Y 49)
+   (X-TO-Y 2) (X-DIST 52) (Y-DIST 21) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE BUTTON (LEFT-X 19) (UPPER-Y 78) (RIGHT-X 19) (LOWER-Y 76)
+   (X-TO-Y 2) (X-DIST 79) (Y-DIST 21) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE SLIDE-BAR (LEFT-X 3) (UPPER-Y 13) (RIGHT-X 3) (LOWER-Y 1)
+   (X-TO-Y 2) (X-DIST 203) (Y-DIST 17) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE SEARCH-BAR (LEFT-X 9) (UPPER-Y 136) (RIGHT-X 9)
+   (LOWER-Y 134) (X-TO-Y 2) (X-DIST 149) (Y-DIST 22) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE DROP-DOWN (LEFT-X 17) (UPPER-Y 118) (RIGHT-X 17)
+   (LOWER-Y 118) (X-TO-Y 2) (X-DIST 121) (Y-DIST 20) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE CHECK-BOX (LEFT-X 13) (UPPER-Y 12) (RIGHT-X 13) (LOWER-Y 14)
+   (X-TO-Y 1) (X-DIST 13) (Y-DIST 13) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE CHECKED-CHECK-BOX (LEFT-X 12) (UPPER-Y 3) (RIGHT-X 1)
+   (LOWER-Y 12) (X-TO-Y 1) (X-DIST 14) (Y-DIST 15) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE CHECKED-CHECK-BOX (LEFT-X 12) (UPPER-Y 3) (RIGHT-X 1)
+   (LOWER-Y 12) (X-TO-Y 1) (X-DIST 14) (Y-DIST 15) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE RADIO-BUTTON (LEFT-X 8) (UPPER-Y 6) (RIGHT-X 8) (LOWER-Y 8)
+   (X-TO-Y 1) (X-DIST 13) (Y-DIST 14) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE RADIO-BUTTON (LEFT-X 8) (UPPER-Y 6) (RIGHT-X 8) (LOWER-Y 8)
+   (X-TO-Y 1) (X-DIST 13) (Y-DIST 14) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE BUTTON (LEFT-X 5) (UPPER-Y 6) (RIGHT-X 5) (LOWER-Y 6)
+   (X-TO-Y 1) (X-DIST 13) (Y-DIST 13) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE BUTTON (LEFT-X 6) (UPPER-Y 6) (RIGHT-X 6) (LOWER-Y 6)
+   (X-TO-Y 1) (X-DIST 13) (Y-DIST 13) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE BUTTON (LEFT-X 6) (UPPER-Y 6) (RIGHT-X 6) (LOWER-Y 6)
+   (X-TO-Y 1) (X-DIST 13) (Y-DIST 13) (FEATURE NIL))
+  INST-LIST)
+ (PUSH
+  (decisiontree:DEFINE-INSTANCE HELP-BUTTON (LEFT-X 8) (UPPER-Y 7) (RIGHT-X 8) (LOWER-Y 7)
+   (X-TO-Y 1) (X-DIST 18) (Y-DIST 19) (FEATURE NIL))
+  INST-LIST))
+
+(defparameter *root-node* (decisiontree:create-classifier inst-list))
+
+(defun run-project(filename)
+  (read-image filename)
+  (scan *edge*)
+  (identify (reverse (layers *image-stack*))))
+
+
+(defun identify(layer-list &optional (stream t))
+  (cond ((null layer-list) nil)
+	(t (let ((current-layer (first layer-list)))
+	     (mapcar #'(lambda(x)
+			 (let ((classification (decisiontree:classify *root-node* (eval (generate-classification-parameters (data x))))))
+			   (if (not-null classification)
+			       (let ()
+				 (print classification)
+				 (print (origin-pixels x))))))
+		     (objects current-layer))
+	     (identify (cdr layer-list) stream)))))
+		       
+
+;; (decisiontree:classify *root-node* (decisiontree:define-instance ? (left-x 50) (upper-y 3) (right-x 1) (lower-y 12) (x-to-y 1) (x-dist 15) (y-dist 16) (Feature nil)))
+
+;; (print (decisiontree:attribute-name *root-node*))
+;; (defparameter *root-node* (print (gethash 8 (decisiontree:subtree-hash *root-node*))))
+;; (print (decisiontree:attribute-name *root-node*))
+
+;; (defparameter *root-node* (print (gethash 19 (decisiontree:subtree-hash *root-node*))))
+;; (print (decisiontree:label *root-node*))
+
+;; (maphash #'(lambda(k v)
+;; ;	     (attribute-name 
+;; 	     (print k)
+;; 	     (print v))
+;; 	 (decisiontree:subtree-hash *root-node*))
+
+
+

@@ -14,6 +14,8 @@
 		     :initform '(0 0))
    (origin-pixels :accessor origin-pixels
 		  :initform '(0 0))
+   (identified :accessor identification
+	       :initform nil)
    (lower-right-coord :accessor lower-right-coord
 		      :initform '(0 0))))
 
