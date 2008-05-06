@@ -7,8 +7,6 @@
 		:initform nil)
    (parent-widget :accessor parent-widget
 		  :initform nil)
-   (children-widgets :accessor children-widgets
-		     :initform nil)
    (parent-layer :accessor parent-layer)
    (upper-left-coord :accessor upper-left-coord
 		     :initform '(0 0))
@@ -19,10 +17,6 @@
 
 (defun add-pixel-to-image(pixel-x pixel-y intensity image-obj)
   (setf (gethash (list pixel-x pixel-y) (image-pixels image-obj)) intensity))
-
-(defmethod add-child-widget((child-widget image-object) (parent-widget image-object))
-  (setf (children-widgets  parent-widget)
-	(cons child-widget (children-widgets parent-widget))))
 
 (defun add-pixel-list-to-image(xy intensity image-obj)
   (setf (gethash xy (image-pixels image-obj)) intensity))
@@ -98,19 +92,29 @@
   (format nil "~a" (gensym)))
 
 (defun new-file-name()
-  (concatenate 'string "/Users/reuben/images/" (new-name) ".png"))
+  (concatenate 'string "/Users/reuben/images1/" (new-name) ".png"))
 
-;(let* ((layer (first (last (layers *image-stack*)))))
-;  (mapcar #'(lambda(x)
-;	      (write-image (new-file-name) 
-;			   (create-image (find-object-with-origin (first (origin-pixels x))
-;								  (second (origin-pixels x))
-;								  layer)
-;					 *edge*)))
-;					 
-;	  (objects layer)))
+;; (let* ((layer (first (last (layers *image-stack*)))))
+;;  (mapcar #'(lambda(x)
+;; 	     (write-image (new-file-name) 
+;; 			   (create-image (find-object-with-origin (first (origin-pixels x))
+;; 								  (second (origin-pixels x))
+;; 								  layer)
+;; 					 *edge*)))
+					 
+;; 	  (objects layer)))
 ;									 
-;
+; (Read-image "/Users/reuben/img.png")
+; (initialize-first-layer *edge*)
+;; (let* ((layer (first (layers *image-stack*))))
+;;   (mapcar #'(lambda(x)
+;; 	      (write-image (new-file-name)
+;; 			   (create-image (find-object-with-origin (first (origin-pixels x))
+;; 								  (second (origin-pixels x))
+;; 								  layer) 
+;; 					 *edge*)))
+;; 	  (objects layer)))
+					 
 ;;(let* ((layer (first (last (layers *image-stack*)))) 
 ; ;      (image-obj (find-object-with-origin 62 8 layer))
 ;  ;     (gray-image (create-image image-obj *edge*)))

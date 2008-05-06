@@ -1,0 +1,20 @@
+(defun read-file(file-name)
+  (imago:read-png file-name))
+
+(defun process-image(image)
+  (let ((image-hash (make-hash-table :test #'equal))
+	(pixel-count 0))
+    (imago:do-image-pixels (image color x y)
+      (incf pixel-count)
+      (if (gethash (imago:gray-intensity color) image-hash)
+	  (setf (gethash (imago:gray-intensity color) image-hash)
+		(incf (gethash (imago:gray-intensity color) image-hash)))
+	  (setf (gethash (imago:gray-intensity color) image-hash) 1)))
+    (values image-hash pixel-count)))
+
+
+(let ((image (read-file "/Users/reuben/testfolder/g2276.png")))
+  (multiple-value-bind (processed-hash pixel-count) (process-image image)
+    (maphash #'(lambda(k v)
+		 (format t "~a ~a ~a ~f ~%" pixel-count k v (/ v pixel-count)))
+	     processed-hash)))
