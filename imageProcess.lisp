@@ -13,8 +13,6 @@
 (defparameter *default-end-x* 955)
 (defparameter *default-end-y*  461)
 
-
-;(read-image
 (defparameter *north* (list (list #'+ 0) (list #'- 1)))
 (defparameter *south* (list (list #'+ 0) (list #'+ 1)))
 (defparameter *east* (list (list #'+ 1) (list #'+ 0)))
@@ -143,6 +141,8 @@
 	      (if (should-perform-dfs-p image x y parent-widget)
 		  (let ((obj (dfs image x y)))
 		    (setf (parent-widget obj) parent-widget)	
+		    (if (not-null parent-widget)
+			(add-child-widget obj parent-widget))
 		    (if (and (mergable-with-parent-p obj)
 			     (not-null parent-widget))
 			(merge-objects obj parent-widget)

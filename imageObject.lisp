@@ -8,6 +8,8 @@
    (parent-widget :accessor parent-widget
 		  :initform nil)
    (parent-layer :accessor parent-layer)
+   (children-widgets :accessor children-widgets
+		     :initform nil)
    (upper-left-coord :accessor upper-left-coord
 		     :initform '(0 0))
    (origin-pixels :accessor origin-pixels
@@ -33,6 +35,11 @@
 		 (setf pixel-list (append (list k) pixel-list)))
 	     (image-pixels image-obj))
     pixel-list))
+
+(defmethod add-child-widget((child-widget image-object)
+			    (parent-widget image-object))
+  (setf (children-widgets parent-widget)
+	(cons child-widget (children-widgets parent-widget))))
 
 (defun intensity-list(image-obj)
   (let ((intensity-list '()))
