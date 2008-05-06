@@ -8,12 +8,13 @@
 (defparameter *mergable-threshold* 6) ; variable that decides if two given image objects can be merged into one object
 (defparameter *mergable-ratio* .4)
 
-(defparameter *default-start-x* 0)
-(defparameter *default-start-y* 0)
-(defparameter *default-end-x* 1280)
-(defparameter *default-end-y*  800)
+(defparameter *default-start-x* 284)
+(defparameter *default-start-y* 118)
+(defparameter *default-end-x* 955)
+(defparameter *default-end-y*  461)
 
 
+;(read-image
 (defparameter *north* (list (list #'+ 0) (list #'- 1)))
 (defparameter *south* (list (list #'+ 0) (list #'+ 1)))
 (defparameter *east* (list (list #'+ 1) (list #'+ 0)))
@@ -25,6 +26,7 @@
 
 (defun make-point (x y)
   (list x y))
+
 
 (defun edge-detect (image)
   (imago:convolve image #2A(( 0  0  0  0  0)
@@ -201,11 +203,15 @@
 		(scan-region image (first up) (second up) (first low) (second low) x)))
 	  list-of-objects))
 
+(defparameter *val* 0)
 (defun complete-scan(image)
-  (if (> (length (objects (first (layers *image-stack*)))) 5) ; If there are about 5 objects on the top of the stack then we are done
+  (if (or 
+       (> (length (objects (first (layers *image-stack*)))) 5) ; If there are about 5 objects on the top of the stack then we are done
       ;; cause the rest would be repetitions.
+       (= *val* 0))
       (let ((list-of-objects (list-of-objects-to-be-scanned (first (layers *image-stack*))))
 	    (new-layer (make-instance 'image-layer)))
+	(setf *val* 1)
 	(add-layer new-layer *image-stack*)
 	(scan-all-objects list-of-objects image)
 	(complete-scan image))))
